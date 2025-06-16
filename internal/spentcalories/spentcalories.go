@@ -1,6 +1,7 @@
 package spentcalories
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -21,26 +22,26 @@ func parseTraining(data string) (int, string, time.Duration, error) {
 	sl := strings.Split(data, ",")
 	// обработка ошибки с длиной
 	if len(sl) != 3 {
-		return 0, "", 0, fmt.Errorf("inccoret slice lengh")
+		return 0, "", 0, errors.New("inccoret slice lengh")
 	}
 	steps, err := strconv.Atoi(sl[0])
 	// обработка ошибки с переводом в инт
 	if err != nil {
-		return 0, "", 0, fmt.Errorf("mistake with convert int type")
+		return 0, "", 0, fmt.Errorf("mistake with convert int type: %w", err)
 	}
 
 	if steps <= 0 {
-		return 0, "", 0, fmt.Errorf("steps less than or equal to zero")
+		return 0, "", 0, errors.New("steps less than or equal to zero")
 	}
 	typeOfActivity := sl[1]
 
 	timeSpent, err := time.ParseDuration(sl[2])
 	//обработка ошибки с переводом в тайм дуратион
 	if err != nil {
-		return 0, "", 0, fmt.Errorf("mistake with parsing time")
+		return 0, "", 0, fmt.Errorf("mistake with parsing time: %w", err)
 	}
 	if timeSpent <= 0 {
-		return 0, "", 0, fmt.Errorf("timeSpent less than or equal to zero")
+		return 0, "", 0, errors.New("timeSpent less than or equal to zero")
 	}
 	return steps, typeOfActivity, timeSpent, nil
 
@@ -60,6 +61,7 @@ func meanSpeed(steps int, height float64, duration time.Duration) float64 {
 	// TODO: реализовать функцию
 
 	if steps <= 0 {
+
 		return 0
 	}
 

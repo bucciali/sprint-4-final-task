@@ -23,19 +23,27 @@ func parsePackage(data string) (int, time.Duration, error) {
 	sl := strings.Split(data, ",")
 	if len(sl) != 2 {
 
-		return 0, 0, fmt.Errorf("Больше 2 жлементов в слайсе")
+		return 0, 0, errors.New("more than 2 elemets in slice")
 	}
 	steps, err := strconv.Atoi(sl[0])
-	if err != nil || steps <= 0 {
-		log.Println(err)
-		return 0, 0, fmt.Errorf("Неудалось преобразовать строку в число или количество шагов меньше или равно 0 ")
+
+	if err != nil {
+
+		return 0, 0, fmt.Errorf("mistake with parsing string: %w", err)
+
+	}
+	if steps <= 0 {
+		return 0, 0, errors.New("steps less than or equal to zero")
 
 	}
 
 	minutHour, err := time.ParseDuration(sl[1])
-	if err != nil || minutHour <= 0 {
+	if err != nil {
 		log.Println(err)
-		return 0, 0, fmt.Errorf("Неудалось преобразовать время в time.Duration или время равно 0")
+		return 0, 0, fmt.Errorf("mistake with parsing time: %w", err)
+	}
+	if minutHour <= 0 {
+		return 0, 0, errors.New("time less than or equal to zero")
 	}
 
 	return steps, minutHour, nil
@@ -45,12 +53,34 @@ func parsePackage(data string) (int, time.Duration, error) {
 func DayActionInfo(data string, weight, height float64) string {
 	// TODO: реализовать функцию
 	steps, minutHour, _ := parsePackage(data)
-	distance := (float64(steps) * stepLength) / mInKm
-	calories, _ := spentcalories.WalkingSpentCalories(steps, weight, height, minutHour)
-	if steps <= 0 || weight <= 0 || height <= 0 || calories <= 0 || distance <= 0 {
-		err := errors.New("one of the parametrs is 0")
+	if steps <= 0 {
+		err := errors.New("steps less than or equal to zero")
 		log.Println(err)
 		return ""
 	}
+	if weight <= 0 {
+		err := errors.New("weight less than or equal to zero")
+		log.Println(err)
+		return ""
+	}
+	if height <= 0 {
+		err := errors.New("height less than or equal to zero")
+		log.Println(err)
+		return ""
+	}
+
+	distance := (float64(steps) * stepLength) / mInKm
+	calories, _ := spentcalories.WalkingSpentCalories(steps, weight, height, minutHour)
+	if calories <= 0 {
+		err := errors.New("calories less than or equal to zero")
+		log.Println(err)
+		return ""
+	}
+	if distance <= 0 {
+		err := errors.New("distance less than or equal to zero")
+		log.Println(err)
+		return ""
+	}
+
 	return fmt.Sprintf("Количество шагов: %d.\nДистанция составила %.2f км.\nВы сожгли %.2f ккал.\n", steps, distance, calories)
 }
